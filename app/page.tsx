@@ -23,7 +23,7 @@ export default function Home() {
     "<span>time to</span> be playful",
     "<span>time to</span> be design the future",
     "<span>time to</span> be meet Siddharth",
-    "<span>time to</span> be see project one",
+    "<span>time to</span> see project one",
   ];
 
   useGSAP(
