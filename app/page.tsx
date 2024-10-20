@@ -1,6 +1,5 @@
 "use client";
-import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ReactLenis } from "@studio-freight/react-lenis";
@@ -34,7 +33,7 @@ export default function Home() {
 
       const updateHeaderText = () => {
         if (h1ElementRef.current) {
-          h1ElementRef.current.innerHTML =
+          (h1ElementRef.current as HTMLInputElement).innerHTML =
             introHeaders[Math.min(currentCycle, introHeaders.length - 1)];
         }
       };
@@ -50,10 +49,10 @@ export default function Home() {
 
         onUpdate: (self) => {
           const progress = self.progress;
-          const rotationProgress = Math.min((progress*8) /5, 1);
+          const rotationProgress = Math.min((progress * 8) / 5, 1);
           const totalRotation = rotationProgress * 1800 - 90;
-          const rotaionInCycle = ((totalRotation + 90) % 360)-90;
-          gsap.set(handContainerRef.current, { rotationZ: rotaionInCycle });
+          const rotationInCycle = ((totalRotation + 90) % 360) - 90;
+          gsap.set(handContainerRef.current, { rotationZ: rotationInCycle });
 
           const newCycle = Math.floor((totalRotation + 90) / 360);
           if (
@@ -66,7 +65,7 @@ export default function Home() {
 
             if (newCycle === 3 && !imageReaveled) {
               gsap.to(handImageRef.current, { opacity: 1, duration: 0.3 });
-              gsap.to(introCopyRef.current.querySelectorAll("p"), {
+              gsap.to((introCopyRef.current as HTMLInputElement | null)!.querySelectorAll("p"), {
                 x: 0,
                 opacity: 1,
                 duration: 0.5,
@@ -75,7 +74,7 @@ export default function Home() {
               imageReaveled = true;
             } else if (newCycle !== 3 && imageReaveled) {
               gsap.to(handImageRef.current, { opacity: 0, duration: 0.3 });
-              gsap.to(introCopyRef.current.querySelectorAll("p"), {
+              gsap.to((introCopyRef.current as HTMLInputElement | null)!.querySelectorAll("p"), {
                 x: 20,
                 opacity: 0,
                 duration: 0.5,
@@ -84,98 +83,102 @@ export default function Home() {
               imageReaveled = false;
             }
           }
-          
-          if(progress<=6/8){
-            const animationProgress = Math.max(0, (progress-5/8)/ (1/8));
+
+          if (progress <= 6 / 8) {
+            const animationProgress = Math.max(0, (progress - 5 / 8) / (1 / 8));
             const newHeight = gsap.utils.interpolate(
               "52.75%",
               "100%",
               animationProgress
             );
-            const newOpacity = gsap.utils.interpolate(1,0,animationProgress);
-            gsap.set(handRef.current, {height: `${newHeight}`});
-            gsap.set(introRef.current, {opacity:1});
-            gsap.set(h1ElementRef.current, {opacity: newOpacity});
-            gsap.set(h1ElementRef.current.querySelector("span"), {opacity: newOpacity});
-          }
-          else{
-            gsap.set(introRef.current,{opcaity:0});
-          }
-
-          if(progress<=7/8){ 
-            const scaleProgress = Math.max(0,(progress - 6/8)/(1/8));
-            const newScale = gsap.utils.interpolate(1,20, scaleProgress)
-            gsap.set(handRef.current, {scale:newScale})
+            const newOpacity = gsap.utils.interpolate(1, 0, animationProgress);
+            gsap.set(handRef.current, { height: `${newHeight}` });
+            gsap.set(introRef.current, { opacity: 1 });
+            gsap.set(h1ElementRef.current, { opacity: newOpacity });
+            gsap.set((h1ElementRef.current as HTMLInputElement | null)!.querySelector("span"), {
+              opacity: newOpacity,
+            });
+          } else {
+            gsap.set(introRef.current, { opcaity: 0 });
           }
 
-          if(progress <= 7.5/8){
-            const opacityProgress = Math.max(0,(progress - 7/8)/(0.5/8));
-            const newOpacity = gsap.utils.interpolate(1,0, opacityProgress);
-            gsap.set(handRef.current, {opacity: newOpacity});
+          if (progress <= 7 / 8) {
+            const scaleProgress = Math.max(0, (progress - 6 / 8) / (1 / 8));
+            const newScale = gsap.utils.interpolate(1, 20, scaleProgress);
+            gsap.set(handRef.current, { scale: newScale });
           }
 
-          if(progress>7.5/8){
-            const revealProgress = (progress - 7.5/8) / (0.5/8);
-            const newOpacity = gsap.utils.interpolate(0,1,revealProgress);
-            gsap.set(websiteContentRef.current, {opacity:newOpacity})
+          if (progress <= 7.5 / 8) {
+            const opacityProgress = Math.max(0, (progress - 7 / 8) / (0.5 / 8));
+            const newOpacity = gsap.utils.interpolate(1, 0, opacityProgress);
+            gsap.set(handRef.current, { opacity: newOpacity });
           }
-          else{
-            gsap.set(websiteContentRef.current, {opacity:0})
+
+          if (progress > 7.5 / 8) {
+            const revealProgress = (progress - 7.5 / 8) / (0.5 / 8);
+            const newOpacity = gsap.utils.interpolate(0, 1, revealProgress);
+            gsap.set(websiteContentRef.current, { opacity: newOpacity });
+          } else {
+            gsap.set(websiteContentRef.current, { opacity: 0 });
           }
-          
         },
       });
 
       updateHeaderText();
 
-      return() => {
+      return () => {
         ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      }
+      };
     },
     { scope: containerRef }
   );
 
-  
-
   return (
     <>
-    <ReactLenis root options={{lerp:0.1, duration: 1.5, smoothTouch:true}}>
-      <div className="container" ref={containerRef}>
-        <section className="sticky" ref={stickyRef}>
-          <div className="hand-container" ref={handContainerRef}>
-            <div className="hand" ref={handRef}>
-            <img src="face.jpg" alt="face" ref={handImageRef} />
+      <ReactLenis
+        root
+        options={{ lerp: 0.1, duration: 1.5}}
+      >
+        <div className="container" ref={containerRef}>
+          <section className="sticky" ref={stickyRef}>
+            <div className="hand-container" ref={handContainerRef}>
+              <div className="hand" ref={handRef}>
+                <img
+                  className="absolute"
+                  src="face.jpg"
+                  alt="face"
+                  ref={handImageRef}
+                />
+              </div>
             </div>
-          </div>
 
-
-          <div className="intro" ref={introRef}>
-            <h1 ref={h1ElementRef}>
-              <span>time to</span> be brave
-            </h1>
-            <div ref={introCopyRef}>
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni
-                quos aliquam voluptatibus inventore quidem esse exercitationem
-                nobis, autem rem dolor fuga reprehenderit. Inventore ea optio
-                deserunt non voluptates rerum libero!
-              </p>
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni
-                quos aliquam voluptatibus inventore quidem esse exercitationem
-                nobis, autem rem dolor fuga reprehenderit. Inventore ea optio
-                deserunt non voluptates rerum libero!
-              </p>
+            <div className="intro" ref={introRef}>
+              <h1 ref={h1ElementRef}>
+                <span>time to</span> be brave
+              </h1>
+              <div ref={introCopyRef}>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                  Magni quos aliquam voluptatibus inventore quidem esse
+                  exercitationem nobis, autem rem dolor fuga reprehenderit.
+                  Inventore ea optio deserunt non voluptates rerum libero!
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                  Magni quos aliquam voluptatibus inventore quidem esse
+                  exercitationem nobis, autem rem dolor fuga reprehenderit.
+                  Inventore ea optio deserunt non voluptates rerum libero!
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="website-content" ref={websiteContentRef}>
-            <h1>GSAP is pretty cool</h1>
-          </div>
-        </section>
-        <section className="about">
-          <p>By Siddharth Mantri</p>
-        </section>
-      </div>
+            <div className="website-content" ref={websiteContentRef}>
+              <h1>GSAP is pretty cool</h1>
+            </div>
+          </section>
+          <section className="about">
+            <p>By Siddharth Mantri</p>
+          </section>
+        </div>
       </ReactLenis>
     </>
   );
